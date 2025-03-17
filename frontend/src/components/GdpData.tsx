@@ -24,7 +24,7 @@ const GdpData: React.FC = () => {
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">GDP Data</h2>
+      <h2 className="text-xl font-bold mb-4 text-indigo-600">GDP Data</h2>
       {loading ? (
         <p className="text-gray-500">Loading...</p>
       ) : (
