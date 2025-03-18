@@ -41,6 +41,35 @@ router.get('/buffett-index', async (req, res) => {
   }
 })
 
+router.get("/indicators", async (req, res) => {
+  try {
+    const economicData = {
+      unemployment: 3.4,
+      inflation: 21.48,
+      interestRate: 1.13,
+      sp500: 2099.5
+    }
+
+    res.json({ success: true, data: economicData })
+  } catch (error) {
+    console.error("❌ 경제 지표 데이터 가져오기 실패:", error)
+    res.status(500).json({ success: false, message: "서버 오류 발생" })
+  }
+})
+
+
+router.get("/api/economy/indicators", async (req, res) => {
+  try {
+    const economicData = await fetchEconomicData() // 여기에 실제 데이터를 가져오는 함수 추가
+    if (!economicData) {
+      return res.status(404).json({ success: false, message: "데이터가 없습니다." })
+    }
+    res.json({ success: true, data: economicData })
+  } catch (error) {
+    console.error("❌ 경제 데이터 불러오기 실패:", error)
+    res.status(500).json({ success: false, message: "서버 오류 발생" })
+  }
+})
 
 // ✅ 실업률 데이터
 router.get('/unemployment', async (req, res) => {

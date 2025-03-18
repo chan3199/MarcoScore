@@ -1,31 +1,46 @@
-import React from 'react'
-import BuffettIndex from './components/BuffettIndex'
-import EconomicIndicators from './components/EconomicIndicators'
-import EconomicChart from './components/EconomicChart'
+import React, { Suspense, lazy } from "react";
+
+// ✅ 동적 임포트 (React Lazy 사용)
+const BuffettIndex = lazy(() => import("./components/BuffettIndex"));
+const EconomicIndicators = lazy(() => import("./components/EconomicIndicators"));
+const EconomicChart = lazy(() => import("./components/EconomicChart"));
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-center text-indigo-700 mb-6">
-        MacroScore - 거시 경제 데이터
-      </h1>
+    <div className="w-full min-h-screen flex flex-col items-center bg-gray-100">
+      {/* ✅ 컨텐츠 영역 */}
+      <div className="w-full max-w-[1400px] px-8 py-6 flex flex-col items-center">
+        
+        {/* ✅ 제목 */}
+        <h1 className="text-4xl font-bold text-indigo-700 text-center mb-10 w-full">
+          MacroScore - 거시 경제 데이터
+        </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full">
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <BuffettIndex />
+        {/* ✅ 주요 지표 */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Suspense fallback={<p>📊 Buffett Index 로딩 중...</p>}>
+            <div className="w-full">
+              <BuffettIndex />
+            </div>
+          </Suspense>
+
+          <Suspense fallback={<p>📌 경제 지표 로딩 중...</p>}>
+            <div className="w-full">
+              <EconomicIndicators />
+            </div>
+          </Suspense>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <EconomicIndicators />
+        {/* ✅ 차트 전체 너비 활용 */}
+        <div className="w-full flex justify-center mt-12">
+          <Suspense fallback={<p>📈 차트 로딩 중...</p>}>
+            <EconomicChart />
+          </Suspense>
         </div>
 
-        {/* 📈 버핏지수 차트 추가 */}
-        <div className="col-span-1 md:col-span-2 bg-white p-6 rounded-lg shadow-lg">
-          <EconomicChart />
-        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
