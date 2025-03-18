@@ -23,15 +23,26 @@ interface BuffettData {
   interestRate: number
 }
 
+// 기간 옵션 정의
+const timeRanges: Record<string, number> = {
+    '10년': 40,
+    '5년': 20,
+    '3년': 12,
+    '1년': 4,
+    '6개월': 2,
+    '3개월': 1
+  }
+
 const EconomicChart: React.FC = () => {
   const [chartData, setChartData] = useState<BuffettData[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [selectedRange, setSelectedRange] = useState<string>('10년')
 
   useEffect(() => {
     axios.get<{ success: boolean; data: BuffettData[] }>('http://localhost:5000/api/economy/buffett-index')
       .then(response => {
         const formattedData = response.data.data.map((item, index) => ({
-          date: `Q${(index % 4) + 1} ${item.date.split('-')[0]}`, // YYYY-MM-DD → Q1 2024 형식 변환
+          date: `Q${(index % 4) + 1} ${item.date.split('-')[0]}`,
           buffettIndex: item.buffettIndex,
           sp500: item.sp500,
           interestRate: item.interestRate,
@@ -45,11 +56,14 @@ const EconomicChart: React.FC = () => {
       })
   }, [])
 
+  // 선택한 기간만큼 데이터 필터링
+  const filteredData = chartData.slice(-timeRanges[selectedRange])
+
   // X축(연도별 분기)과 Y축(지표 값) 설정
-  const labels = chartData.map(item => item.date)
-  const buffettValues = chartData.map(item => item.buffettIndex)
-  const sp500Values = chartData.map(item => item.sp500)
-  const interestRates = chartData.map(item => item.interestRate)
+  const labels = filteredData.map(item => item.date)
+  const buffettValues = filteredData.map(item => item.buffettIndex)
+  const sp500Values = filteredData.map(item => item.sp500)
+  const interestRates = filteredData.map(item => item.interestRate)
 
   // Chart.js 데이터 설정
   const data = {
@@ -87,13 +101,29 @@ const EconomicChart: React.FC = () => {
     responsive: true,
     plugins: {
       legend: { position: 'top' as const },
-      title: { display: true, text: 'Buffett Index & Economic Indicators' }
+      title: { display: true, text: `Buffett Index (${selectedRange})` }
     }
   }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
       <h2 className="text-xl font-bold text-indigo-700 mb-4">📈 Buffett Index Chart</h2>
+
+      {/* 기간 선택 버튼 */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {Object.keys(timeRanges).map(range => (
+          <button
+            key={range}
+            onClick={() => setSelectedRange(range)}
+            className={`px-3 py-1 rounded-md ${
+              selectedRange === range ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+            }`}
+          >
+            {range}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <p className="text-gray-500">Loading...</p>
       ) : (
