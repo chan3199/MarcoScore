@@ -3,15 +3,44 @@ const { fetchEconomicData } = require('../services/fredService')
 
 const router = express.Router()
 
-// ✅ GDP 데이터 가져오기 API
-router.get('/gdp', async (req, res) => {
-  const data = await fetchEconomicData('GDP')
-  if (data) {
-    res.json({ success: true, data })
-  } else {
-    res.status(500).json({ success: false, message: 'Failed to fetch GDP data' })
+// ✅ 버핏지수 시계열 데이터 API
+router.get('/buffett-index', async (req, res) => {
+  try {
+    // 📌 최근 10년치 GDP 데이터 가져오기
+    const gdpData = await fetchEconomicData('GDP')
+    // 📌 최근 10년치 S&P 500 데이터 가져오기
+    const sp500Data = await fetchEconomicData('SP500')
+
+    if (!gdpData || !sp500Data) {
+      return res.status(500).json({ success: false, message: 'Failed to fetch data' })
+    }
+
+    // 📌 버핏지수 시계열 데이터 계산
+    let buffettIndexData = []
+    for (let i = 0; i < Math.min(gdpData.length, sp500Data.length); i++) {
+      const gdpValue = parseFloat(gdpData[i].value)
+      const sp500Value = parseFloat(sp500Data[i].value)
+
+      if (gdpValue > 0 && sp500Value > 0) {
+        buffettIndexData.push({
+          date: gdpData[i].date,  // YYYY-MM-DD 형식
+          buffettIndex: (sp500Value / gdpValue) * 100,
+          gdp: gdpValue,
+          sp500: sp500Value
+        })
+      }
+    }
+
+    res.json({
+      success: true,
+      data: buffettIndexData.reverse() // 최신 데이터가 앞에 오도록 정렬
+    })
+  } catch (error) {
+    console.error('Error calculating Buffett Index:', error)
+    res.status(500).json({ success: false, message: 'Server error' })
   }
 })
+
 
 // ✅ 실업률 데이터
 router.get('/unemployment', async (req, res) => {
@@ -63,33 +92,5 @@ router.get('/sp500', async (req, res) => {
   }
 })
 
-// ✅ 버핏지수 계산 API
-router.get('/buffett-index', async (req, res) => {
-  try {
-    // 최근 GDP 데이터 가져오기
-    const gdpData = await fetchEconomicData('GDP')
-    // 최근 S&P 500 데이터 가져오기
-    const sp500Data = await fetchEconomicData('SP500')
-
-    if (!gdpData || !sp500Data) {
-      return res.status(500).json({ success: false, message: 'Failed to fetch data' })
-    }
-
-    // 최신 GDP 및 S&P 500 값 가져오기
-    const latestGDP = parseFloat(gdpData[gdpData.length - 1].value)
-    const latestSP500 = parseFloat(sp500Data[sp500Data.length - 1].value)
-
-    // 버핏지수 계산
-    const buffettIndex = (latestSP500 / latestGDP) * 100
-
-    res.json({
-      success: true,
-      data: { buffettIndex, latestGDP, latestSP500 }
-    })
-  } catch (error) {
-    console.error('Error calculating Buffett Index:', error)
-    res.status(500).json({ success: false, message: 'Server error' })
-  }
-})
 
 module.exports = router
