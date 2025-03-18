@@ -13,8 +13,7 @@ const GdpData: React.FC = () => {
   useEffect(() => {
     axios.get<{ success: boolean; data: GDPData[] }>('http://localhost:5000/api/economy/gdp')
       .then(response => {
-        console.log('API 응답 데이터:', response.data) // ✅ 응답 데이터 콘솔 출력
-        setData(response.data.data) // ✅ 데이터 상태 업데이트
+        setData(response.data.data)
         setLoading(false)
       })
       .catch(error => {
@@ -22,18 +21,17 @@ const GdpData: React.FC = () => {
         setLoading(false)
       })
   }, [])
-  
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4 text-indigo-600">GDP Data</h2>
+    <div>
+      <h2 className="text-xl font-bold text-indigo-700 mb-4">📊 GDP Data</h2>
       {loading ? (
         <p className="text-gray-500">Loading...</p>
       ) : (
-        <ul>
+        <ul className="space-y-2">
           {data.slice(-5).map((item, index) => (
-            <li key={index} className="border-b py-2 text-blue-600">
-              {item.date}: {item.value}
+            <li key={index} className="bg-gray-100 p-2 rounded-md shadow">
+              <span className="font-semibold">{item.date}:</span> {item.value}
             </li>
           ))}
         </ul>
