@@ -62,4 +62,34 @@ router.get('/sp500', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch S&P 500 data' })
   }
 })
+
+// ✅ 버핏지수 계산 API
+router.get('/buffett-index', async (req, res) => {
+  try {
+    // 최근 GDP 데이터 가져오기
+    const gdpData = await fetchEconomicData('GDP')
+    // 최근 S&P 500 데이터 가져오기
+    const sp500Data = await fetchEconomicData('SP500')
+
+    if (!gdpData || !sp500Data) {
+      return res.status(500).json({ success: false, message: 'Failed to fetch data' })
+    }
+
+    // 최신 GDP 및 S&P 500 값 가져오기
+    const latestGDP = parseFloat(gdpData[gdpData.length - 1].value)
+    const latestSP500 = parseFloat(sp500Data[sp500Data.length - 1].value)
+
+    // 버핏지수 계산
+    const buffettIndex = (latestSP500 / latestGDP) * 100
+
+    res.json({
+      success: true,
+      data: { buffettIndex, latestGDP, latestSP500 }
+    })
+  } catch (error) {
+    console.error('Error calculating Buffett Index:', error)
+    res.status(500).json({ success: false, message: 'Server error' })
+  }
+})
+
 module.exports = router
