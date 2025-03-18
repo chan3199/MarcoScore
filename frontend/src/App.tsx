@@ -1,5 +1,7 @@
 import React from 'react'
 import GdpData from './components/GdpData'
+import EconomicIndicators from './components/EconomicIndicators'
+import EconomicChart from './components/EconomicChart'
 
 const App: React.FC = () => {
   return (
@@ -9,6 +11,8 @@ const App: React.FC = () => {
           MacroScore - 거시 경제 데이터
         </h1>
         <GdpData />
+        <EconomicIndicators />
+        <EconomicChart />
       </div>
     </div>
   )
