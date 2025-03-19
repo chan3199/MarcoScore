@@ -1,6 +1,6 @@
 const express = require('express')
 const { fetchEconomicData } = require('../services/fredService')
-
+const { execSync } = require("child_process");
 const router = express.Router()
 
 // ✅ 버핏지수 시계열 데이터 API
@@ -120,6 +120,17 @@ router.get('/sp500', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch S&P 500 data' })
   }
 })
+
+router.get("/gdp-predict", (req, res) => {
+  try {
+      const output = execSync("python3 backend/models/gdp_predict.py").toString();
+      const prediction = JSON.parse(output);
+      res.json({ success: true, data: prediction });
+  } catch (error) {
+      console.error("❌ GDP 예측 실패:", error);
+      res.status(500).json({ success: false, message: "예측 실패" });
+  }
+});
 
 
 module.exports = router
