@@ -1,45 +1,20 @@
 const express = require('express')
-const { fetchEconomicData } = require('../services/fredService')
-
+const { calculateBuffettIndex } = require("../services/fetchBuffettIndex");
 const router = express.Router()
 
-// ✅ 버핏지수 시계열 데이터 API
-router.get('/buffett-index', async (req, res) => {
+// 📌 버핏지수 API 엔드포인트 (1970년 이후 데이터 제공)
+router.get("/buffett-index", async (req, res) => {
   try {
-    // 📌 GDP 및 시가총액 데이터 가져오기
-    const gdpData = await fetchEconomicData('GDP');
-    const marketCapData = await fetchEconomicData('WILL5000IND'); // ✅ 올바른 시리즈 ID 사용
-
-    if (!gdpData || !marketCapData) {
-      return res.status(500).json({ success: false, message: 'Failed to fetch data' });
+    const result = await calculateBuffettIndex();
+    if (!result) {
+      return res.status(500).json({ success: false, message: "데이터를 가져오는 데 실패했습니다." });
     }
-
-    // 📌 버핏지수 계산 (시가총액 / GDP * 100)
-    let buffettIndexData = [];
-    for (let i = 0; i < Math.min(gdpData.length, marketCapData.length); i++) {
-      const gdpValue = parseFloat(gdpData[i].value);
-      const marketCapValue = parseFloat(marketCapData[i].value);
-
-      if (gdpValue > 0 && marketCapValue > 0) {
-        buffettIndexData.push({
-          date: gdpData[i].date,  // YYYY-MM-DD 형식
-          buffettIndex: (marketCapValue / gdpValue) * 100, // ✅ 올바른 계산식 적용
-          gdp: gdpValue,
-          marketCap: marketCapValue
-        });
-      }
-    }
-
-    res.json({
-      success: true,
-      data: buffettIndexData.reverse() // ✅ 최신 데이터가 앞에 오도록 정렬
-    });
+    res.json({ success: true, data: result });
   } catch (error) {
-    console.error('❌ Error calculating Buffett Index:', error.response ? error.response.data : error.message);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("❌ 버핏지수 API 오류:", error.message);
+    res.status(500).json({ success: false, message: "서버 오류 발생" });
   }
 });
-
 
 router.get("/indicators", async (req, res) => {
   try {
