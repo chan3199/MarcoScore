@@ -1,52 +1,20 @@
 const express = require('express')
-const { fetchEconomicData } = require('../services/fredService')
-const { estimateSP500MarketCap } = require("../services/sp500Service");
-const { fetchMarketCapWithCrumb } = require("../services/yahooFinanceService");
+const { calculateBuffettIndex } = require("../services/fetchBuffettIndex");
 const router = express.Router()
 
-// 📌 버핏지수 API 엔드포인트
+// 📌 버핏지수 API 엔드포인트 (1970년 이후 데이터 제공)
 router.get("/buffett-index", async (req, res) => {
   try {
-    // ✅ S&P 500 ETF (SPY)의 시가총액 가져오기
-    const sp500MarketCap = await fetchMarketCapWithCrumb("SPY");
-
-    if (!sp500MarketCap) {
-      return res.status(500).json({ success: false, message: "Failed to fetch S&P 500 market cap" });
+    const result = await calculateBuffettIndex();
+    if (!result) {
+      return res.status(500).json({ success: false, message: "데이터를 가져오는 데 실패했습니다." });
     }
-
-    res.json({
-      success: true,
-      data: {
-        date: new Date().toISOString().split("T")[0], // YYYY-MM-DD 형식
-        sp500MarketCap,
-      },
-    });
+    res.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error fetching Buffett Index:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("❌ 버핏지수 API 오류:", error.message);
+    res.status(500).json({ success: false, message: "서버 오류 발생" });
   }
 });
-
-
-// ✅ S&P 500 전체 시가총액 API
-router.get("/sp500-marketcap", async (req, res) => {
-  try {
-    const totalMarketCap = await estimateSP500MarketCap();
-    if (!totalMarketCap) {
-      return res.status(500).json({ success: false, message: "Failed to fetch market cap data" });
-    }
-
-    res.json({
-      success: true,
-      totalMarketCap,
-    });
-  } catch (error) {
-    console.error("❌ S&P 500 시가총액 계산 실패:", error.message);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-
 
 router.get("/indicators", async (req, res) => {
   try {
