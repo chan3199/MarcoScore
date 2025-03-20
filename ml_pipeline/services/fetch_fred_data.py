@@ -19,7 +19,10 @@ FRED_SERIES = {
     "Personal_Consumption": "PCE",  # 개인소득
     "USD_Index": "DTWEXBGS",  # 달러 인덱스
     "VIX": "VIXCLS",  # 변동성 지수
-    "Initial_Jobless_Claims": "ICSA"  # 신규 실업수당 청구
+    "Initial_Jobless_Claims": "ICSA",  # 신규 실업수당 청구
+    "Government_Expenditure": "GCE",  # 정부 지출
+    "Consumer_Confidence": "UMCSENT",  # 소비자 신뢰지수
+    "Private_Investment": "GPDI"  # 기업 투자율
 }
 
 # 📌 FRED 데이터 가져오기

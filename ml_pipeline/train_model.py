@@ -5,61 +5,62 @@ from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
 
 # 📌 데이터 불러오기
-data = pd.read_csv("data/macro_data.csv", parse_dates=["date"], index_col="date")
+data = pd.read_csv("data/macro_data_scaled.csv", parse_dates=["date"], index_col="date")
 
-# 📌 결측치 보간
-print("🛠 Filling missing values...")
-data = data.interpolate(method="linear")
+# 📌 NaN 값이 있는지 확인
+print("🔍 데이터 결측치 확인:\n", data.isna().sum())
 
-# 📌 데이터 스케일링
-scaler = MinMaxScaler()
-data_scaled = scaler.fit_transform(data)
-df_scaled = pd.DataFrame(data_scaled, columns=data.columns, index=data.index)
-
-# 📌 GDP 타겟 컬럼 인덱스 찾기
-target_index = list(data.columns).index("GDP")
-
-# 📌 시계열 데이터셋 생성 함수
-def create_sequences(data, target_index, seq_length=12):
+# 📌 시계열 데이터셋 생성
+def create_sequences(data, target, seq_length=12):
     X, y = [], []
     for i in range(len(data) - seq_length):
         X.append(data[i:i+seq_length])
-        y.append(data[i+seq_length, target_index])  # GDP 데이터만 가져옴
+        y.append(target[i+seq_length])
     return np.array(X), np.array(y)
 
 # 🎯 입력 및 타겟 설정
-SEQ_LENGTH = 12  # 12개월 데이터 사용
-X, y = create_sequences(df_scaled.values, target_index, SEQ_LENGTH)
+SEQ_LENGTH = 12
+X, y = create_sequences(data.values, data["GDP"].values, SEQ_LENGTH)
+
+# 📌 NaN 또는 Inf 값 제거
+X = np.nan_to_num(X, nan=0.0, posinf=1.0, neginf=-1.0)
+y = np.nan_to_num(y, nan=0.0, posinf=1.0, neginf=-1.0)
 
 # 📌 데이터셋 분할
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
-# 📌 LSTM 모델 구축
+# 📌 LSTM 모델 구축 (학습 안정화)
 print("🔧 Building LSTM model...")
 model = tf.keras.models.Sequential([
-    tf.keras.layers.LSTM(100, return_sequences=True, input_shape=(SEQ_LENGTH, X.shape[2])),
-    tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.LSTM(50, return_sequences=False),
-    tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.Dense(1)
+    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(SEQ_LENGTH, X.shape[2]), recurrent_dropout=0.2)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True, recurrent_dropout=0.2)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32, return_sequences=False, recurrent_dropout=0.2)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(1, activation='linear', kernel_regularizer=tf.keras.regularizers.l2(0.01))
 ])
 
-model.compile(optimizer='adam', loss='mse')
+# 📌 Adam Optimizer (학습률 감소)
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005)
+model.compile(optimizer=optimizer, loss='mse')
 
-# 📌 EarlyStopping & ReduceLROnPlateau 추가 (학습 최적화)
-early_stopping = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
-reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.5, patience=5, min_lr=1e-5)
+# 📌 Early Stopping 추가
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor="val_loss",
+    patience=15,  # 더 오래 기다리기
+    restore_best_weights=True
+)
 
 # 📌 모델 학습
 print("🚀 Training model...")
 history = model.fit(
-    X_train, y_train, 
-    epochs=50, 
-    batch_size=16, 
+    X_train, y_train,
+    epochs=200, batch_size=32,
     validation_data=(X_test, y_test),
-    callbacks=[early_stopping, reduce_lr]  # 최적화 콜백 추가
+    callbacks=[early_stopping]
 )
 
 # 📌 모델 저장
-model.save("../model/gdp_predictor.h5")
+model.save("model/gdp_predictor.h5")
 print("✅ Model training complete!")

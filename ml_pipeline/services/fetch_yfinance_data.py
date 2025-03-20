@@ -13,7 +13,7 @@ YFINANCE_TICKERS = {
 # 📌 금융시장 데이터 가져오기 (Yahoo Finance)
 def fetch_yfinance_data(ticker):
     try:
-        df = yf.download(ticker, start="1970-01-01", end="2025-12-31", progress=False)
+        df = yf.download(ticker, start="1990-01-01", end="2025-12-31", progress=False)
         df = df[["Adj Close"]].reset_index()
         df.columns = ["date", "value"]
         return df
