@@ -1,26 +1,29 @@
 import yfinance as yf
 import pandas as pd
 
-# ✅ 불필요한 결측치가 많은 자산 제거
-ASSETS = {
-    "S&P 500": "^GSPC",
-    "Gold": "GC=F",
-    "Crude Oil": "CL=F",
-    "Nasdaq 100": "^NDX",
+# 📌 가져올 금융시장 데이터 심볼 리스트
+YFINANCE_TICKERS = {
+    "S&P_500": "^GSPC",
+    "Nasdaq_100": "^NDX",
+    "Russell_2000": "^RUT",
+    "VIX": "^VIX",
+    "USD_Index": "DX-Y.NYB",
 }
 
-# Yahoo Finance 데이터 가져오기
-def fetch_yfinance_data(symbol):
-    asset = yf.Ticker(symbol)
-    df = asset.history(period="max")
-    df = df.reset_index()[["Date", "Close"]]
-    df.columns = ["date", "value"]
-    df["date"] = pd.to_datetime(df["date"])
-    return df
+# 📌 금융시장 데이터 가져오기 (Yahoo Finance)
+def fetch_yfinance_data(ticker):
+    try:
+        df = yf.download(ticker, start="1970-01-01", end="2025-12-31", progress=False)
+        df = df[["Adj Close"]].reset_index()
+        df.columns = ["date", "value"]
+        return df
+    except Exception as e:
+        print(f"❌ {ticker} 데이터 가져오기 실패:", e)
+        return None
 
-# 여러 자산 데이터 가져오기
+# 📌 전체 금융시장 데이터 가져오기
 def fetch_all_yfinance_data():
-    dataframes = {key: fetch_yfinance_data(symbol) for key, symbol in ASSETS.items()}
+    dataframes = {key: fetch_yfinance_data(ticker) for key, ticker in YFINANCE_TICKERS.items()}
     return dataframes
 
 if __name__ == "__main__":

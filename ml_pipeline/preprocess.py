@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from services.fetch_macro_data import merge_macro_data
 
 # 데이터 불러오기

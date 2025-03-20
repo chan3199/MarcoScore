@@ -8,51 +8,50 @@ from services.fetch_fred_data import fetch_all_fred_data
 from services.fetch_yfinance_data import fetch_all_yfinance_data
 
 def merge_macro_data():
-    print("📡 경제 데이터 가져오는 중...")
-
-    # ✅ 1. 데이터 수집
     fred_data = fetch_all_fred_data()
     yfinance_data = fetch_all_yfinance_data()
-
-    # ✅ 2. 빈 데이터 필터링
     merged_df = None
 
-    # 🔹 3. FRED 데이터 추가
+    # 📌 FRED 데이터 병합
     for key, df in fred_data.items():
-        if df is not None and not df.empty:
-            df["date"] = pd.to_datetime(df["date"]).dt.tz_localize(None)
+        if df is not None:
             df = df.rename(columns={"value": key})
             merged_df = df if merged_df is None else pd.merge(merged_df, df, on="date", how="outer")
 
-    # 🔹 4. Yahoo Finance 데이터 추가
+    # 📌 금융시장 데이터 병합
     for key, df in yfinance_data.items():
-        if df is not None and not df.empty:
-            df["date"] = pd.to_datetime(df["date"]).dt.tz_localize(None)
+        if df is not None:
             df = df.rename(columns={"value": key})
             merged_df = pd.merge(merged_df, df, on="date", how="outer")
 
-    # ✅ 5. 결측값 처리
-    merged_df = preprocess_macro_data(merged_df)
+    # 📌 결측치 해결 (이전 값으로 채우기)
+    merged_df = merged_df.sort_values("date").reset_index(drop=True)
+    merged_df.fillna(method="ffill", inplace=True)  # 앞선 값으로 채우기
+    merged_df.fillna(method="bfill", inplace=True)  # 뒤에서 채우기
 
-    print("✅ 통합된 경제 데이터 샘플:")
-    print(merged_df.head(10))
+    # 📌 결측치 비율 확인
+    missing_ratio = merged_df.isnull().sum() / len(merged_df) * 100
+    print("📊 결측치 비율 (%):\n", missing_ratio)
 
+    print("✅ 통합된 경제 및 금융 데이터 샘플:")
+    print(merged_df.head(10))  # 상위 10개 행 출력
     return merged_df
+
 
 
 def preprocess_macro_data(df):
     df["date"] = pd.to_datetime(df["date"]).dt.tz_localize(None)
     df = df.set_index("date")
 
-    # 🔹 불필요한 지표 제거 (결측치가 지나치게 많은 컬럼 삭제)
-    df = df.dropna(thresh=10, axis=1)
-
-    # 🔹 리샘플링 (월별 데이터로 변환)
+    # 🔹 날짜 정렬 및 리샘플링 (월별 데이터로 변환)
     df = df.resample("ME").last()
 
-    # 🔹 결측값 처리 (보간)
-    df = df.interpolate(method="linear")  # 선형 보간
-    df = df.fillna(method="ffill")  # 앞의 값으로 결측치 채우기
+    # 🔹 특정 결측치 비율이 높은 컬럼 제거 (절반 이상이 NaN이면 삭제)
+    df = df.dropna(thresh=len(df) * 0.5, axis=1)
+
+    # 🔹 NaN 값 처리 (앞의 값으로 채우기 + 선형 보간 적용)
+    df = df.ffill().bfill()  # 앞뒤로 결측치 채우기
+    df = df.interpolate(method="linear", limit_direction="both")  # 선형 보간 적용
 
     # 🔹 완전히 비어 있는 행 제거
     df = df.dropna(how="all")

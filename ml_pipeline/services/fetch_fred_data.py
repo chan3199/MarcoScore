@@ -7,17 +7,23 @@ from dotenv import load_dotenv
 load_dotenv()
 FRED_API_KEY = os.getenv("FRED_API_KEY")
 
-# ✅ 불필요한 결측치가 많은 지표 제거
+# 📌 FRED에서 수집할 거시경제 지표 리스트 (불필요한 지표 제거 & 추가)
 FRED_SERIES = {
     "GDP": "GDP",
-    "Unemployment": "UNRATE",
     "Retail_Sales": "RSAFS",
+    "Unemployment": "UNRATE",
     "10Y_2Y_Spread": "T10Y2Y",
     "M2_Money_Supply": "M2SL",
     "Industrial_Production": "INDPRO",
+    "Fed_Funds_Rate": "FEDFUNDS",  # 기준금리
+    "Personal_Consumption": "PCE",  # 개인소득
+    "USD_Index": "DTWEXBGS",  # 달러 인덱스
+    "VIX": "VIXCLS",  # 변동성 지수
+    "Initial_Jobless_Claims": "ICSA"  # 신규 실업수당 청구
 }
 
-# FRED 데이터 가져오기
+# 📌 FRED 데이터 가져오기
+
 def fetch_fred_data(series_id):
     url = "https://api.stlouisfed.org/fred/series/observations"
     params = {
@@ -32,12 +38,13 @@ def fetch_fred_data(series_id):
         df = pd.DataFrame(data["observations"])
         df["value"] = pd.to_numeric(df["value"], errors="coerce")
         df["date"] = pd.to_datetime(df["date"])
+        df = df[df["date"] >= "1975-01-01"]  # 1975년 이후 데이터만 사용
         return df[["date", "value"]]
     else:
         print(f"⚠️ 데이터 가져오기 실패: {series_id}")
         return None
 
-# 여러 지표 데이터 가져오기
+# 📌 여러 지표 데이터 가져오기
 def fetch_all_fred_data():
     dataframes = {key: fetch_fred_data(series) for key, series in FRED_SERIES.items()}
     return dataframes
