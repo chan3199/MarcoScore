@@ -22,11 +22,12 @@ FRED_SERIES = {
     "Initial_Jobless_Claims": "ICSA",  # 신규 실업수당 청구
     "Government_Expenditure": "GCE",  # 정부 지출
     "Consumer_Confidence": "UMCSENT",  # 소비자 신뢰지수
-    "Private_Investment": "GPDI"  # 기업 투자율
+    "Private_Investment": "GPDI",  # 기업 투자율
+    "CCI": "UMCSENT",  # 소비자 신뢰지수
+    "ISM_Manufacturing": "NAPM",  # ISM 제조업 지수
 }
 
 # 📌 FRED 데이터 가져오기
-
 def fetch_fred_data(series_id):
     url = "https://api.stlouisfed.org/fred/series/observations"
     params = {
@@ -41,7 +42,6 @@ def fetch_fred_data(series_id):
         df = pd.DataFrame(data["observations"])
         df["value"] = pd.to_numeric(df["value"], errors="coerce")
         df["date"] = pd.to_datetime(df["date"])
-        df = df[df["date"] >= "1975-01-01"]  # 1975년 이후 데이터만 사용
         return df[["date", "value"]]
     else:
         print(f"⚠️ 데이터 가져오기 실패: {series_id}")
