@@ -15,17 +15,17 @@ FRED_SERIES = {
     "10Y_2Y_Spread": "T10Y2Y",
     "M2_Money_Supply": "M2SL",
     "Industrial_Production": "INDPRO",
-    "Fed_Funds_Rate": "FEDFUNDS",  # 기준금리
-    "Personal_Consumption": "PCE",  # 개인소득
-    "USD_Index": "DTWEXBGS",  # 달러 인덱스
-    "VIX": "VIXCLS",  # 변동성 지수
-    "Initial_Jobless_Claims": "ICSA",  # 신규 실업수당 청구
-    "Government_Expenditure": "GCE",  # 정부 지출
-    "Consumer_Confidence": "UMCSENT",  # 소비자 신뢰지수
-    "Private_Investment": "GPDI",  # 기업 투자율
-    "CCI": "UMCSENT",  # 소비자 신뢰지수
-    "ISM_Manufacturing": "NAPM",  # ISM 제조업 지수
+    "Fed_Funds_Rate": "FEDFUNDS",
+    "Personal_Consumption": "PCE",
+    "USD_Index": "DTWEXBGS",
+    "VIX": "VIXCLS",
+    "Initial_Jobless_Claims": "ICSA",
+    "Government_Expenditure": "GCE",
+    "Consumer_Confidence": "UMCSENT",
+    "Private_Investment": "GPDI",
+    "ISM_Manufacturing": "NAPM"
 }
+
 
 # 📌 FRED 데이터 가져오기
 def fetch_fred_data(series_id):

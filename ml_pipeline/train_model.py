@@ -1,77 +1,67 @@
 import pandas as pd
 import numpy as np
-import joblib
-import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
+import tensorflow as tf
 
-# 📌 데이터 불러오기 (스케일링된 데이터 사용)
-data = pd.read_csv("data/macro_data_scaled.csv", parse_dates=["date"], index_col="date")
+# 📌 데이터 불러오기
+df = pd.read_csv("data/macro_data_scaled.csv", parse_dates=["date"])
+df = df[df["date"].dt.year >= 1980]  # 🔍 1980년 이후만 사용
+df = df.set_index("date")
 
-# 🎯 시계열 데이터셋 생성 함수
-def create_sequences(data, target, seq_length=24):  # 👈 12 → 24개월로 증가
+# 🎯 타겟 및 피처 설정
+target_col = "GDP"
+# 👉 중복 지표 제거: "Consumer_Confidence"와 "CCI" 중 하나 제거
+feature_cols = df.columns.drop([target_col, "CCI"])  # 또는 "Consumer_Confidence" 제거
+
+# 📌 시계열 데이터셋 생성 함수
+SEQ_LENGTH = 24  # ✅ 시계열 길이 증가
+def create_sequences(data, target, seq_length=24):
     X, y = [], []
     for i in range(len(data) - seq_length):
-        X.append(data[i:i + seq_length])
-        y.append(target[i + seq_length])
+        X.append(data[i:i+seq_length])
+        y.append(target[i+seq_length])
     return np.array(X), np.array(y)
 
-# 🎯 입력 및 타겟 설정
-SEQ_LENGTH = 24  # 👈 12개월 → 24개월로 변경
-X, y = create_sequences(data.values, data["GDP"].values, SEQ_LENGTH)
+X, y = create_sequences(df[feature_cols].values, df[target_col].values, SEQ_LENGTH)
 
-# 📌 데이터셋 분할 (시계열 데이터이므로 shuffle=False)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+# 📌 데이터 분할
+X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False, test_size=0.2)
 
-# 📌 LSTM 모델 구축 (레이어 수 증가 및 학습률 변경)
-print("🔧 Building LSTM model...")
-model = tf.keras.models.Sequential([
-    tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(SEQ_LENGTH, X.shape[2])),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Dropout(0.2),
-    
-    tf.keras.layers.LSTM(64, return_sequences=True),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Dropout(0.2),
-
-    tf.keras.layers.LSTM(32, return_sequences=False),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Dropout(0.2),
-    
+# ✅ 개선된 모델 정의 (Bidirectional LSTM 도입)
+model = tf.keras.Sequential([
+    tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(64, return_sequences=True),
+        input_shape=(SEQ_LENGTH, X.shape[2])
+    ),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(32)
+    ),
+    tf.keras.layers.Dropout(0.3),
     tf.keras.layers.Dense(1)
 ])
 
-# 📌 Adam Optimizer 개선 (학습률 조정)
-optimizer = tf.keras.optimizers.Adam(learning_rate=0.002)  # 👈 0.001 → 0.002 로 증가
-model.compile(optimizer=optimizer, loss="mse")
+model.compile(optimizer="adam", loss="mse")
 
-# 📌 Early Stopping 추가
-early_stopping = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=20, restore_best_weights=True)
-
-# 📌 모델 학습
+# 📌 학습
 print("🚀 Training model...")
+early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
 history = model.fit(
     X_train, y_train,
-    epochs=500, batch_size=32,
     validation_data=(X_test, y_test),
-    callbacks=[early_stopping]
+    epochs=100,
+    batch_size=16,
+    callbacks=[early_stop]
 )
+
+# 📌 성능 평가
+y_pred = model.predict(X_test)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+mape = mean_absolute_percentage_error(y_test, y_pred)
+print(f"📉 RMSE: {rmse:.4f}")
+print(f"📉 MAPE: {mape:.4f}")
 
 # 📌 모델 저장
 model.save("model/gdp_predictor.h5")
-print("✅ Model training complete!")
-
-
-# 📌 원래 단위로 역변환 (데이터 복원)
-scaler = RobustScaler()
-scaler.fit(X_train)
-# 🎯 예측 수행
-y_pred = model.predict(X_test)
-
-# 🎯 예측값을 원래 단위(GDP 값)로 변환
-y_pred_rescaled = scaler.inverse_transform(np.concatenate([np.zeros((y_pred.shape[0], data.shape[1] - 1)), y_pred], axis=1))[:, -1]
-
-# 🎯 저장
-np.save("data/y_test.npy", y_test)
-np.save("data/y_pred.npy", y_pred_rescaled)  # ✅ 변환된 값 저장
-
+print("✅ Model saved to model/gdp_predictor.h5")

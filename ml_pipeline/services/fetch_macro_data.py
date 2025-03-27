@@ -16,12 +16,14 @@ def merge_macro_data():
             df = df.rename(columns={"value": key})
             merged_df = df if merged_df is None else pd.merge(merged_df, df, on="date", how="outer")
 
-    # 📌 결측치 보간
+    # 정렬 및 결측치 처리
     merged_df = merged_df.sort_values("date").reset_index(drop=True)
-    merged_df = merged_df.interpolate(method="linear")  # 선형 보간 적용
+    merged_df = merged_df.interpolate(method="linear")
+    merged_df = merged_df.dropna(thresh=5)  # 5개 이상 결측치 있는 행 제거 (선택)
 
-    # 📌 데이터 저장
-    merged_df.to_csv("data/macro_data.csv", index=False)
+    # 데이터 저장
+    os.makedirs(DATA_DIR, exist_ok=True)
+    merged_df.to_csv(CSV_PATH, index=False)
     return merged_df
 
 # 📌 데이터 저장 함수
