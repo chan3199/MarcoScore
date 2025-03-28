@@ -1,31 +1,52 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-import numpy as np
+import joblib
+import os
 
-# 📌 데이터 불러오기
-data = pd.read_csv("data/macro_data.csv", parse_dates=["date"], index_col="date")
+# 📌 경로 설정
+DATA_PATH = "data/macro_data.csv"
+SCALED_PATH = "data/macro_data_scaled.csv"
+SCALER_PATH = "models/scaler.pkl"
 
-# 📌 최근 30년 데이터만 사용 (1990년 이후)
-data = data.loc["1990-01-01":]
+# 🔧 전처리 함수
+def preprocess_macro_data():
+    # 📌 데이터 불러오기
+    df = pd.read_csv(DATA_PATH, parse_dates=["date"])
 
-# 📌 NaN 데이터 확인
-print("🔍 결측치 개수:\n", data.isna().sum())
+    # 📌 1980년 이후 데이터 필터링
+    df = df[df["date"].dt.year >= 1980]
 
-# 📌 결측치 보간 (선형 보간 + 마지막 값으로 채우기)
-data = data.interpolate(method="linear")
-data = data.fillna(method="bfill").fillna(method="ffill")
+    # 📌 결측치 보간 → 완전 제거
+    df = df.sort_values("date").reset_index(drop=True)
+    df.interpolate(method="linear", inplace=True)
+    df.dropna(inplace=True)
 
-# 📌 스케일링 (확인용)
-print("📊 정규화 전 GDP 통계:\n", data["GDP"].describe())
+    # 📌 스케일링 대상
+    feature_cols = df.columns[df.columns != "date"]
+    df[feature_cols] = df[feature_cols].astype(float)
 
-# 📌 MinMaxScaler (-1 ~ 1 범위로 조정)
-scaler = MinMaxScaler(feature_range=(-1, 1))
-data_scaled = scaler.fit_transform(data)
-df_scaled = pd.DataFrame(data_scaled, columns=data.columns, index=data.index)
+    # 📌 스케일링
+    scaler = MinMaxScaler()
+    df_scaled = df.copy()
+    df_scaled[feature_cols] = scaler.fit_transform(df[feature_cols])
 
-# 📌 정규화 확인
-print("📊 정규화 후 GDP 통계:\n", df_scaled["GDP"].describe())
+    # 🔍 NaN 확인
+    if df_scaled[feature_cols].isnull().values.any():
+        print("❌ 스케일링 후 NaN이 존재합니다.")
+        print(df_scaled[feature_cols].isnull().sum())
+        return
 
-# 📌 저장
-df_scaled.to_csv("data/macro_data_scaled.csv")
-print("✅ Preprocessing complete. Data saved.")
+    # 📌 저장
+    os.makedirs("models", exist_ok=True)
+    df_scaled.to_csv(SCALED_PATH, index=False)
+    joblib.dump(scaler, SCALER_PATH)
+
+    print("✅ 스케일된 GDP 분포 확인:")
+    print(df_scaled["GDP"].describe())
+    print("GDP 샘플:", df_scaled["GDP"].values[:20])
+    print("✅ 전처리 및 저장 완료!")
+
+    return df_scaled
+
+if __name__ == "__main__":
+    preprocess_macro_data()
