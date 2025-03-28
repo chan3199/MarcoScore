@@ -9,10 +9,12 @@ df = pd.read_csv("data/macro_data_scaled.csv", parse_dates=["date"])
 df = df[df["date"].dt.year >= 1980]  # 🔍 1980년 이후만 사용
 df = df.set_index("date")
 
+drop_features = ["Consumer_Confidence", "CCI", "Initial_Jobless_Claims", "VIX", "USD_Index"]
 # 🎯 타겟 및 피처 설정
 target_col = "GDP"
 # 👉 중복 지표 제거: "Consumer_Confidence"와 "CCI" 중 하나 제거
-feature_cols = df.columns.drop([target_col, "CCI"])  # 또는 "Consumer_Confidence" 제거
+
+feature_cols = df.columns.drop([target_col] + drop_features)
 
 # 📌 시계열 데이터셋 생성 함수
 SEQ_LENGTH = 24  # ✅ 시계열 길이 증가
@@ -31,14 +33,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False, test_si
 # ✅ 개선된 모델 정의 (Bidirectional LSTM 도입)
 model = tf.keras.Sequential([
     tf.keras.layers.Bidirectional(
-        tf.keras.layers.LSTM(64, return_sequences=True),
+        tf.keras.layers.LSTM(128, return_sequences=True),
         input_shape=(SEQ_LENGTH, X.shape[2])
     ),
-    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dropout(0.2),
     tf.keras.layers.Bidirectional(
-        tf.keras.layers.LSTM(32)
+        tf.keras.layers.LSTM(64)
     ),
-    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dropout(0.2),
     tf.keras.layers.Dense(1)
 ])
 
@@ -50,8 +52,8 @@ early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, r
 history = model.fit(
     X_train, y_train,
     validation_data=(X_test, y_test),
-    epochs=100,
-    batch_size=16,
+    epochs=150,
+    batch_size=32,
     callbacks=[early_stop]
 )
 
