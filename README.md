@@ -52,7 +52,21 @@
 ## 📂 프로젝트 구조
 
 ```bash
-MacroScore/ ├── frontend/ # React 기반 대시보드 ├── backend/ # Node.js API 서버 ├── ml_pipeline/ # GDP 예측 모델 및 전처리 │ ├── fetch_fred_data.py │ ├── fetch_macro_data.py │ ├── preprocess.py │ ├── train_model.py │ ├── evaluate_model.py │ └── model/ │ └── gdp_predictor.h5 ├── data/ │ └── macro_data.csv ├── .env └── README.md
+MacroScore/
+├── frontend/ # React 기반 대시보드
+├── backend/ # Node.js API 서버
+├── ml_pipeline/ # GDP 예측 모델 및 전처리
+│ ├── fetch_fred_data.py
+│ ├── fetch_macro_data.py
+│ ├── preprocess.py
+│ ├── train_model.py
+│ ├── evaluate_model.py
+│ └── model/
+│ └── gdp_predictor.h5
+├── data/
+│ └── macro_data.csv
+├── .env
+└── README.md
 ```
 
 ---
