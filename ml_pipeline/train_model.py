@@ -15,6 +15,7 @@ df = df.set_index("date")
 # 🎯 타겟 및 피처
 target_col = "GDP"
 feature_cols = df.columns.drop([target_col, "CCI"])  # 중복 제거
+print("Feature 개수:", len(feature_cols))  
 X_raw = df[feature_cols].values
 y_raw = df[target_col].values
 
@@ -60,5 +61,5 @@ print(f"📉 RMSE: {rmse:.4f}")
 print(f"📉 MAPE: {mape:.4f}")
 
 # 📁 저장
-model.save("model/gdp_predictor.h5")
+model.save("model/model_recent.h5")
 print("✅ Model saved to model/gdp_predictor.h5")

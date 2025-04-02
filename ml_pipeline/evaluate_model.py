@@ -34,7 +34,7 @@ X_test = X_seq[-TEST_SIZE:]
 y_test = y_seq[-TEST_SIZE:]
 
 # 📌 모델 로딩
-model = tf.keras.models.load_model("model/gdp_predictor.h5")
+model = tf.keras.models.load_model("model/model_recent.h5")
 
 # 📌 예측
 y_pred = model.predict(X_test).flatten()
