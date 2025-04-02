@@ -15,7 +15,7 @@ df = df[df["date"].dt.year >= 1980].reset_index(drop=True)
 df = df.set_index("date")
 
 target_col = "GDP"
-feature_cols = df.columns.drop([target_col, "CCI"])  # 중복 제거
+feature_cols = df.columns.drop([target_col, "CCI"]) 
 X_raw = df[feature_cols].values
 y_raw = df[target_col].values
 
