@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 # 1. 데이터 로드
 gdp_df = pd.read_csv("data/macro_data_gdp_full.csv", parse_dates=["date"])
@@ -24,8 +25,9 @@ gdp_all = gdp_all.set_index("date").resample("D").ffill().reset_index()
 
 # 4. 버핏지수 계산
 merged = pd.merge(wilshire_df, gdp_all, on="date", how="inner")
-merged["buffett_index"] = merged["MarketCap"] / merged["GDP"]
+merged["buffett_index"] = merged["MarketCap"] / merged["GDP"] / 10**9
 
 # 5. 저장
-merged[["date", "buffett_index"]].to_csv("data/buffett_index.csv", index=False)
-print("✅ 버핏지수 CSV 저장 완료: data/buffett_index.csv")
+output_path = os.path.abspath("../frontend/public/data/buffett_index.csv")
+merged[["date", "buffett_index"]].to_csv(output_path, index=False)
+print(f"✅ 저장 완료: {output_path}")

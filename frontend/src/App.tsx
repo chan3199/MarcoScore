@@ -1,8 +1,7 @@
 import React, { Suspense, lazy } from "react";
 
 // ✅ 동적 임포트 (React Lazy 사용)
-const BuffettIndex = lazy(() => import("./components/BuffettIndex"));
-const EconomicIndicators = lazy(() => import("./components/EconomicIndicators"));
+const BuffettIndexChart = lazy(() => import("./components/BuffettIndexChart"));
 const EconomicChart = lazy(() => import("./components/EconomicChart"));
 
 const App: React.FC = () => {
@@ -19,14 +18,8 @@ const App: React.FC = () => {
         {/* ✅ 주요 지표 */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
           <Suspense fallback={<p>📊 Buffett Index 로딩 중...</p>}>
-            <div className="w-full">
-              <BuffettIndex />
-            </div>
-          </Suspense>
-
-          <Suspense fallback={<p>📌 경제 지표 로딩 중...</p>}>
-            <div className="w-full">
-              <EconomicIndicators />
+            <div className="w-full" style={{ width: "100%", maxWidth: "1500px", height: "500px", margin: "0 auto"}}>
+              <BuffettIndexChart />
             </div>
           </Suspense>
         </div>
