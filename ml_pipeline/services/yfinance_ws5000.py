@@ -7,7 +7,7 @@ df = yf.download(ticker, start="1980-01-01", interval="1d")
 
 # 필요한 컬럼만 정리
 df = df[["Close"]].reset_index()
-df.columns = ["Date", "MarketCap"]
+df.columns = ["date", "MarketCap"]
 df["MarketCap"] *= 1e9  # 💡 억 단위로 가정 (단위 일치시키기 위해)
 
 # 저장
