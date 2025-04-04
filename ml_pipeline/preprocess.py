@@ -29,6 +29,9 @@ def preprocess_macro_data():
     scaler = MinMaxScaler()
     df_scaled = df.copy()
     df_scaled[feature_cols] = scaler.fit_transform(df[feature_cols])
+    df["GDP"] = scaler.fit_transform(df[["GDP"]])
+
+    
 
     # 🔍 NaN 확인
     if df_scaled[feature_cols].isnull().values.any():
@@ -40,6 +43,8 @@ def preprocess_macro_data():
     os.makedirs("models", exist_ok=True)
     df_scaled.to_csv(SCALED_PATH, index=False)
     joblib.dump(scaler, SCALER_PATH)
+    joblib.dump(scaler, "models/scaler_gdp.pkl")
+    print("✅ scaler_gdp.pkl 저장 완료")
 
     print("✅ 스케일된 GDP 분포 확인:")
     print(df_scaled["GDP"].describe())
