@@ -80,16 +80,17 @@ MacroScore/
   - 시계열 길이 확대 (12 → 24개월)
   - Bidirectional LSTM 구조로 성능 향상
 
-> 향후 Prophet, XGBoost, LightGBM 등 추가 적용 가능
+> 예측 보정치와 기존 예측치 간 평균 학습으로 모델 대폭 개선
+wilshire 5000 실시간 지표 업데이트 및 버핏 지수 구축 완료
+GDP 발표치 최대 + GDP 다음 분기 예측치 = GDP csv파일 구축 후 버핏 지수에 활용
 
 ---
 
 ## 📌 향후 개발 계획
 
-- ✅ GDP 예측 성능 고도화 (Ensemble, Feature Selection 등)
-- ✅ 종합 투자지수 계산 (예측 기반)
+- ✅ GDP 예측 성능 고도화 (Ensemble, Feature Selection 등) = 📌fix
+- ✅ 종합 투자지수 계산 (예측 기반) 
 - ⏳ 자동 리밸런싱 시뮬레이션 기능 개발
-- ⏳ 브로커 API 연동 (매수 자동화)
 - ⏳ 유저 커스터마이징 기능 (이메일 알림, 자산 설정 등)
 
 ---
