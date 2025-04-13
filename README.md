@@ -1,112 +1,120 @@
-# 📊 MacroScore: 거시 경제 기반 투자 적절성 분석 플랫폼
+# MacroScore: 거시경제 기반 투자 적정성 분석 플랫폼
 
-
-**MacroScore**는 거시경제 지표와 예측 모델을 기반으로 미국 증시에 대한 투자 판단을 도와주는 시각화 플랫폼입니다. 감정적인 매매를 줄이고, 데이터 기반으로 시장을 이해하여 전략적 투자를 실현할 수 있도록 돕습니다.
-
-## 🧠 프로젝트 개요
-
-### 🔍 기획 배경
-- S&P500 등 미국 증시 장기 투자에 대한 관심 증가
-- 단순 적립식 투자 → 경제 사이클을 반영한 **유연한 투자 전략** 필요
-- 거시지표(GDP, 금리, 실업률 등)를 바탕으로 투자 적절성 지수 제공
-
-### 🎯 목표
-- 경제지표 및 밸류에이션 지표를 종합하여 투자 타이밍 분석
-- **GDP 예측 모델**을 기반으로 선행지표 활용
-- 직관적인 대시보드로 누구나 쉽게 투자 환경 파악 가능
+MacroScore는 미국 증시의 장기 투자 시점을 거시경제 데이터를 통해 판단하는 실험적 투자 보조 플랫폼입니다. 감정적인 매매가 아닌, 데이터를 바탕으로 투자 전략을 세울 수 있도록 돕는 것을 목표로 합니다.
 
 ---
 
-## 🚀 핵심 기능
+## 1. 프로젝트 개요
 
-### ✅ 거시경제 기반 투자 분석
-- GDP, 금리, 실업률, 소비지출, 통화량 등 핵심 지표 제공
-- SPY 시가총액 기반 **버핏지수** 시계열 차트 구현
-- FRED API 기반 실시간 지표 자동 업데이트
+### 1.1 기획 배경
 
-### ✅ GDP 예측 모델 탑재
-- LSTM + Bidirectional LSTM 기반 **딥러닝 시계열 예측 모델**
-- FRED와 Yahoo Finance 데이터를 활용한 실험적 GDP 예측
-- RMSE / MAPE 평가 지표 기반 성능 검증
+- 미국 증시에 대한 적립식 투자 관심 증가
+- 단순 DCA 전략을 넘어, 경제 사이클에 따라 투자 비중을 조절할 수 있는 방법 모색
+- 거시경제 지표와 시가총액 기반의 평가 지표(예: 버핏 지수)를 통해 데이터 기반의 투자 타이밍 판단 도구 개발
 
-### ✅ 대시보드 UI
-- 차트 기반 시각화 (Chart.js)
-- 기간 선택 (1년, 3년, 10년 등)
-- 지표별 변화 추세 비교 가능
+### 1.2 목표
+
+- 주요 경제 지표 시계열화 및 실시간 시각화
+- LSTM 기반 GDP 예측 모델 구축 및 실험적 예측
+- 예측 GDP와 실시간 시가총액을 활용한 **버핏 지수** 동적 계산
 
 ---
 
-## 🛠 기술 스택
+## 2. 핵심 기능
 
-| 분류 | 기술 |
-|------|------|
-| 프론트엔드 | React (Vite) + TypeScript + Tailwind CSS + Chart.js |
-| 백엔드 | Node.js (Express) + SQLite + REST API |
-| 머신러닝 | Python, TensorFlow, Scikit-learn |
-| 데이터 수집 | FRED API, FMP API |
-| 배포 | Netlify (FE) + Render (BE), Docker (개발 환경) |
-| CI/CD | GitHub Actions, Webhook, Docker Compose |
+### 2.1 거시경제 기반 분석
+
+- FRED API 기반: 금리, 실업률, 통화량, 소비 등 주요 지표 수집
+- 경제 데이터 정규화 및 시계열 구성
+- 시각화를 통해 지표 흐름 확인 가능
+
+### 2.2 GDP 예측 모델
+
+- LSTM + Bidirectional LSTM 기반 예측 구조
+- 시계열 길이 확장 및 중복 변수 제거로 성능 향상
+- 최근 데이터 중심으로 보정된 예측값 반영
+- 발표되지 않은 미래 GDP 예측값을 활용한 버핏지수 계산
+
+### 2.3 버핏지수 시계열 분석
+
+- Wilshire 5000 시가총액 / 미국 GDP
+- 발표된 GDP는 실제 값을 사용하고, 발표되지 않은 구간은 모델 예측값으로 대체
+- 일 단위 시계열로 보간 처리하여 시계열 추적 가능
+- Plotly.js를 통한 웹 기반 시각화 구현 (React)
 
 ---
 
-## 📂 프로젝트 구조
+## 3. 기술 스택
 
+| 분류        | 기술                                       |
+|-------------|--------------------------------------------|
+| 프론트엔드  | React (Vite), TypeScript, Plotly.js        |
+| 백엔드      | Node.js (Express), SQLite, REST API        |
+| 머신러닝    | Python, TensorFlow, Scikit-learn            |
+| 데이터 수집 | FRED API, Yahoo Finance (yfinance)         |
+| 인프라      | Docker, Netlify, Render, GitHub Actions    |
+
+---
+
+## 4. 프로젝트 구조
 ```bash
 MacroScore/
-├── frontend/ # React 기반 대시보드
-├── backend/ # Node.js API 서버
-├── ml_pipeline/ # GDP 예측 모델 및 전처리
-│ ├── fetch_fred_data.py
+├── frontend/ # 대시보드 React 프로젝트
+│ └── public/data/ # Plotly용 CSV 데이터 (버핏지수 등)
+├── backend/ # REST API (향후 확장 예정)
+├── ml_pipeline/ # 머신러닝 파이프라인
 │ ├── fetch_macro_data.py
-│ ├── preprocess.py
 │ ├── train_model.py
 │ ├── evaluate_model.py
-│ └── model/
-│ └── gdp_predictor.h5
+│ ├── correct_gdp.py
+│ └── buffett_index_generator.py
 ├── data/
-│ └── macro_data.csv
-├── .env
+│ ├── macro_data.csv
+│ ├── macro_data_scaled.csv
+│ ├── recent_gdp_prediction.csv
+│ ├── wilshire5000_yahoo_api.csv
+│ └── buffett_index.csv
 └── README.md
 ```
 
 ---
 
-## 📈 모델 평가 결과
+## 5. 성능 평가
 
-- **LSTM 기반 예측 RMSE**: 약 *0.014*
-- **MAPE**: 약 *1.1%*
-- 주요 개선점:
-  - CCI/중복 변수 제거
-  - 시계열 길이 확대 (12 → 24개월)
-  - Bidirectional LSTM 구조로 성능 향상
-
-> 예측 보정치와 기존 예측치 간 평균 학습으로 모델 대폭 개선
-wilshire 5000 실시간 지표 업데이트 및 버핏 지수 구축 완료
-GDP 발표치 최대 + GDP 다음 분기 예측치 = GDP csv파일 구축 후 버핏 지수에 활용
+- **최종 예측 모델 (Long-term)**
+  - RMSE: 0.0100
+  - MAPE: 5.99%
+  - 구조: Bidirectional LSTM, 24개월 시계열, 중복 지표 제거
+- 예측 결과는 최근 분기 기준으로 자동 보정
+- 실제 GDP와 오차가 크지 않아, 예측값을 활용한 실용적 지표 구성 가능
 
 ---
 
-## 📌 향후 개발 계획
+## 6. 현재 구현 현황
 
-- ✅ GDP 예측 성능 고도화 (Ensemble, Feature Selection 등) = 📌fix
-- ✅ 종합 투자지수 계산 (예측 기반) 
-- ⏳ 자동 리밸런싱 시뮬레이션 기능 개발
-- ⏳ 유저 커스터마이징 기능 (이메일 알림, 자산 설정 등)
+- [x] 거시경제 지표 수집 및 정규화
+- [x] LSTM 기반 GDP 예측 모델 학습 및 시각화
+- [x] 버핏지수 산출 및 React + Plotly.js 시각화
+- [x] 실시간 예측값 기반 GDP 확장 및 자동 보정
+- [ ] 백엔드 API로 지표 데이터 연동 (계획 중)
+- [ ] 알림 기능 및 사용자 설정 기능 (계획 중)
 
 ---
 
-## 📎 참고 및 데이터 출처
+## 7. 참고 자료
 
 - [FRED Economic Data](https://fred.stlouisfed.org/)
-- [Financial Modeling Prep API](https://financialmodelingprep.com/)
-- [Yahoo Finance](https://finance.yahoo.com/)
+- [Yahoo Finance - Wilshire 5000](https://finance.yahoo.com/)
 - [TensorFlow Documentation](https://www.tensorflow.org/)
+- [Financial Modeling Prep API](https://financialmodelingprep.com/)
 
 ---
 
-## 🧑‍💻 개발자 메모
+## 8. 개발 개선상황
 
-> MacroScore는 단순히 지표를 나열하는 서비스가 아니라, 경제 데이터의 흐름을 해석하고 **데이터 기반 투자 사고**를 도와주는 프로젝트입니다.  
-실험적인 시도가 많았지만, 실제로 예측 모델을 학습시키고 평가까지 진행한 의미 있는 도전을 하는 중입니다.
+- 모델 성능 향상을 위해 여러 파라미터 실험 및 보정 기법 시도
+- 시계열 예측의 한계를 느끼며 예측 구간 구분 전략(장기/단기)을 도입
+- Plotly + React 조합으로 고해상도 대시보드 구현 가능성 확인
+- 실제 지표 수집 → 학습 → 예측 → 시각화까지 파이프라인 자동화 완료
+- 한계: 실제 자산 가격 예측에는 아직 거리 존재, 설명력 높은 종합지표 도입 필요
 
----
