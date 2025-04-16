@@ -44,7 +44,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(1)
 ])
 
-model.compile(optimizer="adam", loss="mse")
+model.compile(optimizer="adam", loss=tf.keras.losses.MeanSquaredError())
 
 # 학습
 print("🚀 Training model...")
