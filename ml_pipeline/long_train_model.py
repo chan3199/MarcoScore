@@ -61,9 +61,9 @@ history = model.fit(
 y_pred = model.predict(X_test)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 mape = mean_absolute_percentage_error(y_test, y_pred)
-print(f"📉 RMSE: {rmse:.4f}")
-print(f"📉 MAPE: {mape:.4f}")
+print(f"RMSE: {rmse:.4f}")
+print(f"MAPE: {mape:.4f}")
 
 # 모델 저장
 model.save("model/model_long.h5")
-print("✅ Model saved to model/model_long.h5")
+print("Model saved to model/model_long.h5")

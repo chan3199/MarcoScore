@@ -25,7 +25,7 @@ merged["buffett_index"] = merged["MarketCap"] / merged["GDP"]
 plt.figure(figsize=(12, 6))
 plt.plot(merged["date"], merged["buffett_index"], color="darkred", label="Buffett Index")
 plt.axhline(1.0, color="gray", linestyle="--", label="Fair Value (1.0)")
-plt.title("📈 Buffett Index Over Time")
+plt.title("Buffett Index Over Time")
 plt.xlabel("Date")
 plt.ylabel("Buffett Index")
 plt.grid(True)
