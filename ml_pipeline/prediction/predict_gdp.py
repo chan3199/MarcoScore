@@ -31,7 +31,7 @@ model = tf.keras.models.load_model(MODEL_PATH)
 scaled_pred = model.predict(X_input)[0][0]
 
 # 역변환 (GDP 스케일 복원)
-# -> MinMaxScaler는 전체 feature에 대해 학습되었기 때문에, GDP 하나만 복원해야 할 때는 아래처럼 처리했음음
+# -> MinMaxScaler는 전체 feature에 대해 학습되었기 때문에, GDP 하나만 복원해야 할 때는 아래처럼 처리했음
 gdp_index = list(df.columns.drop("date")).index(TARGET_COL)
 gdp_min = scaler.data_min_[gdp_index]
 gdp_max = scaler.data_max_[gdp_index]

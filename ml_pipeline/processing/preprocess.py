@@ -2,11 +2,12 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import joblib
 import os
+from ml_pipeline.processing.create_gdpCsv import gdpExtract
 
 # 경로 설정
-DATA_PATH = "data/macro_data.csv"
-SCALED_PATH = "data/macro_data_scaled.csv"
-SCALER_PATH = "models/scaler.pkl"
+DATA_PATH = "ml_pipeline/data/macro_data.csv"
+SCALED_PATH = "ml_pipeline/data/macro_data_scaled.csv"
+SCALER_PATH = "ml_pipeline/models/scaler.pkl"
 
 # 전처리 함수
 def preprocess_macro_data():
@@ -35,7 +36,7 @@ def preprocess_macro_data():
 
     # NaN 확인
     if df_scaled[feature_cols].isnull().values.any():
-        print("❌ 스케일링 후 NaN이 존재합니다.")
+        print("스케일링 후 NaN이 존재합니다.")
         print(df_scaled[feature_cols].isnull().sum())
         return
 
@@ -53,5 +54,10 @@ def preprocess_macro_data():
 
     return df_scaled
 
-if __name__ == "__main__":
+def run_preprocessing():
     preprocess_macro_data()
+    gdpExtract()
+
+
+if __name__ == "__main__":
+    run_preprocessing()
