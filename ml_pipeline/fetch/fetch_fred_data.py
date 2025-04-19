@@ -23,6 +23,11 @@ FRED_SERIES = {
     "Government_Expenditure": "GCE",
     "Consumer_Confidence": "UMCSENT",
     "Private_Investment": "GPDI",
+    "CPI": "CPIAUCSL",
+    "Core_CPI": "CPILFESL",
+    "Housing_Starts": "HOUST",
+    "Nonfarm_Payroll": "PAYEMS",
+    "Personal_Income": "PI"
 }
 
 

@@ -11,7 +11,7 @@ MODEL_PATH = "ml_pipeline/model/model_long.h5"
 SCALER_PATH = "ml_pipeline/models/scaler_gdp.pkl"
 DATA_PATH = "ml_pipeline/data/macro_data_scaled.csv"
 TARGET_COL = "GDP"
-DROP_FEATURES = ["Consumer_Confidence", "CCI", "Initial_Jobless_Claims", "M2_Money_Supply", "VIX", "USD_Index"]
+DROP_FEATURES = ["Consumer_Confidence","Initial_Jobless_Claims", "M2_Money_Supply", "VIX", "USD_Index"]
 
 
 # 시계열 시퀀스 생성

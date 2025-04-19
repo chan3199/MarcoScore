@@ -19,7 +19,7 @@ def run_training():
     df = df[df["date"].dt.year >= 1980]  # 🔍 1980년 이후만 사용
     df = df.set_index("date")
 
-    drop_features = ["Consumer_Confidence", "CCI", "Initial_Jobless_Claims","M2_Money_Supply", "VIX", "USD_Index"]
+    drop_features = ["Consumer_Confidence","Initial_Jobless_Claims","M2_Money_Supply", "VIX", "USD_Index"]
     # 타겟 및 피처 설정
     target_col = "GDP"
 

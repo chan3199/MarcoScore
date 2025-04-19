@@ -7,7 +7,7 @@ import tensorflow as tf
 # 설정
 SEQ_LENGTH = 24
 TARGET_COL = "GDP"
-REMOVE_COLS = ["Consumer_Confidence", "CCI", "Initial_Jobless_Claims","M2_Money_Supply", "VIX", "USD_Index"]
+REMOVE_COLS = ["Consumer_Confidence","Initial_Jobless_Claims","M2_Money_Supply", "VIX", "USD_Index"]
 MODEL_PATH = "ml_pipeline/model/model_long.h5"
 DATA_PATH = "ml_pipeline/data/macro_data_scaled.csv"
 

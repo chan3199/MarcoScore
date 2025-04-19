@@ -10,7 +10,7 @@ DATA_PATH = "ml_pipeline/data/macro_data_scaled.csv"
 
 # 파라미터
 SEQ_LENGTH = 24
-drop_features = ["Consumer_Confidence", "CCI", "Initial_Jobless_Claims", "VIX", "USD_Index", "M2_Money_Supply"]
+drop_features = ["Consumer_Confidence","Initial_Jobless_Claims", "VIX", "USD_Index", "M2_Money_Supply"]
 
 # 시퀀스 생성 함수
 def create_sequences(data, seq_length=24):
