@@ -47,7 +47,7 @@ model = tf.keras.Sequential([
 model.compile(optimizer="adam", loss=tf.keras.losses.MeanSquaredError())
 
 # 학습
-print("🚀 Training model...")
+print("Training model...")
 early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
 history = model.fit(
     X_train, y_train,

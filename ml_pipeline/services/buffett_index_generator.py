@@ -6,7 +6,7 @@ gdp_df = pd.read_csv("data/macro_data_gdp_full.csv", parse_dates=["date"])
 pred_df = pd.read_csv("data/recent_gdp_prediction.csv", parse_dates=["date"])
 wilshire_df = pd.read_csv("data/wilshire5000_yahoo_api.csv")
 
-# ✅ 컬럼명 통일 및 datetime 변환
+# 컬럼명 통일 및 datetime 변환
 for df in [gdp_df, pred_df, wilshire_df]:
     if "Date" in df.columns:
         df.rename(columns={"Date": "date"}, inplace=True)
@@ -28,6 +28,6 @@ merged = pd.merge(wilshire_df, gdp_all, on="date", how="inner")
 merged["buffett_index"] = merged["MarketCap"] / merged["GDP"] / 10**9
 
 # 5. 저장
-output_path = os.path.abspath("../frontend/public/data/buffett_index.csv")
+output_path = os.path.abspath("../backend/src/data/buffett_index.csv")
 merged[["date", "buffett_index"]].to_csv(output_path, index=False)
-print(f"✅ 저장 완료: {output_path}")
+print(f"저장 완료: {output_path}")
