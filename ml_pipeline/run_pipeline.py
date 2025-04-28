@@ -5,7 +5,6 @@ from ml_pipeline.training.long_evaluate_model import run_evaluation
 from ml_pipeline.prediction.recent_gdp_prediction import run_prediction
 from ml_pipeline.prediction.correct_gdp import run_auto_correction
 from ml_pipeline.buffett.buffett_index_generator import run_buffetSaveCsv
-from ml_pipeline.utils.wait_for_file import wait_for_file
 
 def main():
     print ("step 1: 데이터 수집 !")
